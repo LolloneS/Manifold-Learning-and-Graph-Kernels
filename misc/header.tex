@@ -1,0 +1,38 @@
+\usepackage{titlesec}
+\usepackage{titling}
+
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{burgundy}{rgb}{0.5, 0.0, 0.13}
+\definecolor{blue(pigment)}{rgb}{0.2, 0.2, 0.6}
+\definecolor{darkjunglegreen}{rgb}{0.1, 0.14, 0.13}
+\definecolor{shamrockgreen}{rgb}{0.0, 0.62, 0.38}
+\usepackage{listings}
+
+\lstset{language=python,
+        breaklines=true,
+        showstringspaces=false
+}
+
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setlength{\headsep}{0.35in}
+\let\MakeUppercase\relax
+\PassOptionsToPackage{colorlinks = true,
+    linkcolor = blue,
+    urlcolor  = blue,
+    citecolor = blue,
+    anchorcolor = blue}{hyperref}
+\frenchspacing
+
+
+\pretitle{
+  \begin{center}
+  \LARGE
+  \vspace*{-2.7cm}\includegraphics[width=1\textwidth]{"./misc/logo_unive_2000x2000"}\\[\bigskipamount]
+  \leavevmode \newline \newline \newline
+}
+
+\posttitle{\end{center}}
+\clearpage
