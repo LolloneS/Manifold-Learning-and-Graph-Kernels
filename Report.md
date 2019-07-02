@@ -122,6 +122,19 @@ Generally the non-linearity of the mapping is used to improve local class separa
 
 Also, many kernels proposed in the literature neglet locational information for the substructures in a graph, and cannot therefore establish reliable structural correspondences between the substructures in a pair of graphs, lowering the precision of the similarity measure.
 
+In this assignment, I will test the Wiesfeiler-Lehman kernel.
+
+## Weisfeiler-Lehman Kernel
+The Weisfeiler-Lehman kernel is a state-of-the-art graph kernel that enumerates the common subtrees between two graphs by using the Weisfeiler-Lehman test of graph isomorphism.
+
+Given two attributed graphs $G_1=(V_1,E_1,l_1)$ and $G_2=(V_2,E_2,l_2)$ where the $l_i$'s denote the set of labels of $V_i$, the idea is that of associating with each vertex $v$ a multiset label based on the labels of the neighbors of $v$. This is iterated a fixed number of times and at each step the resulting multisets are sorted and compressed to generate new vertex labels.
+
+Let $G_1^i$ and $G_2^i$ denote the graphs $G_1$ and $G_2$ after $h$ iterations of vertices relabeling procedure. The Weisfeiler-Lehman is then defined as 
+
+$$
+k^h_{wl}(G_1, G_2) = \sum_{i=0}^hk_\delta(G_1^i,G_2^i)
+$$
+
 
 
 
@@ -199,9 +212,18 @@ R-convolution kernels typically count the number of isomorphic substructures in 
 
 The lack of a locality condition and the consequent summation over the entire structure amplifies the effects of these random similaritis, resulting in a lower bound on the kernel value that is a function only of the random graph statistics. This leads to a consistent reduction in the estimated distances for dissimilar graphs, adding a strong curvature to the embedding manifold -which can fold on itself- and increasing the effective dimensionality of the embedding.
 
+## Improving graph kernels with manifold learning
+This assignment requires us to compare an SVM trained on a kernel with and without the manifold learning step. As a matter of fact, we can try unfolding the manifold and hence increase the class separation by applying an optimal manifold learning process to the distance matrix
+
+Given a set of $n$ graphs $\mathcal{G}=\{G_1,...,G_n\}$ and their kernel matrix $K=(k_{ij})$ we can compute the distance matrix $D=(d_{ij})$ with $d_{ij}=\sqrt{K_{ii}+k_{jj}-2k_{ij}}$. Then we can apply the selected manifold learning algorithm and train an SVM classifier (C-SVM) with a linear kernel. Finally we can select the optimal set of parameters using cross validation for the $\nu$-tuple of parameters which maximises
+$$
+// todo argmax
+$$
+$p_1, ..., p_{\nu-1}$ are dependent on the manifold learning techniques.
+
 # Experiments
-## Kernel 1
-## Kernel 2
+
+# Results
 
 # Conclusions
 
