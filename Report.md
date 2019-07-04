@@ -59,9 +59,9 @@ Given two graphs $G$ and $G'$ from the space of graphs $\mathcal{G}$, the proble
 
 ## Graph isomorphism
 Given two graphs $G_1$ and $G_2$, find a mapping $f$ of the vertices of $G_1$ to the vertices of $G_2$ such that $G_1$ and $G_2$ are identical, i.e. $(x,y)$ is an edge of $G_1$ iff $(f(x), f(y))$ is an edge of $G_2$. Then $f$ is an isomorphism, and $G_1$ and $G_2$ are said to be isomorphic.
-\newline
+
 At the moment we do not know a polynomial time algorithm for graph isomorphism, but we also do not know whether the problem is NP-complete.
-\newline
+
 On the other hand, we know that subgraph isomorphism is NP-complete. Subgraph isomorphism checks whether there is a subset of edges and vertices of $G_1$ that is isomorphic to a smaller graph $G_2$.
 
 ### Graph edit distances 
@@ -87,7 +87,9 @@ The kernel trick has the advantage of shifting the problem from a vectorial repr
 ### What is a graph kernel?
 A graph kernel is a kernel function that computes an inner product on graphs. Graph kernels can be intuitively understood as functions measuring the similarity of pairs of graphs. They allow kernelized learning algorithms such as SVMs to work directly on graphs, without having to do feature extraction to transform them to fixed-length, real-valued feature vectors. 
 
-To better explain graph kernels, let us introduce R-convolution kernels. These kernels compare decompositions of two structured objects. Most R-convolution kernels simply count the number of isomorphic substructures in the two compared graphs and differ mainly by the type of substructures used in the deconvolution and the algorithms used to count them efficiently. 
+Computing graph similarities is fundamental in many research areas: for example, a common assumption when working with previously unseen molecules is that molecules with similar structures will have similar functional properties. This is a typical case in which measuring the similarity between graphs is a fundamental aspect of the research work. 
+
+To better explain graph kernels, let us introduce R-convolution kernels, a family graph kernels are instances of. These kernels compare decompositions of two discrete, structured, compound objects. Most R-convolution kernels simply count the number of isomorphic substructures in the two compared graphs and differ mainly by the type of substructures used in the deconvolution and the algorithms used to count them efficiently. 
 $$k_{convolution}(x, x') = \sum_{(x_d,x)\in R}\sum_{(x_d',x')\in R}k_{parts}(x_d,x_d')$$
 Graph kernels are nothing but convolution kernels on pairs of graphs. A new decomposition relation $R$ results in a new graph kernel. A graph kernel makes the whole family of kernel methods applicable to graphs.
 
