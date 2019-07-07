@@ -31,8 +31,8 @@ Choose one manifold learning technique among
 
 Compare the performance of an SVM trained on the given kernel, with or without the manifold learning step, on the following datasets:
 
-* [PPI](http://www.dsi.unive.it/~atorsell/AI/graph/PPI.mat): this is a Protein-Protein Interaction dataset. Here proteins (nodes) are connected by an edge in the graph if they have a physical or functional association.
-* [Shock](http://www.dsi.unive.it/~atorsell/AI/graph/Shock.mat): representing 2D shapes. Each graph is a skeletal-based representation of the differential structure of the boundary of a 2D shape.
+* [PPI](http://www.dsi.unive.it/~atorsell/AI/graph/PPI.mat): this is a Protein-Protein Interaction dataset. Here proteins (nodes) are connected by an edge in the graph if they have a physical or functional association. Contains 2 classes.
+* [Shock](http://www.dsi.unive.it/~atorsell/AI/graph/Shock.mat): representing 2D shapes. Each graph is a skeletal-based representation of the differential structure of the boundary of a 2D shape. Contains 10 classes.
 
 **Note**: the datasets are contained in Matlab files. The variable \texttt{G} contains a vector of cells, one per graph. 
 The entry \texttt{am} of each cell is the adjacency matrix of the graph.
@@ -254,20 +254,20 @@ Here is a high-level description of what it does, taken from the original paper:
 
 1. **Multiset label determination**
     * assign a multiset label $M_i(v)$ to each node $v \in G$ which consists of the multiset $\{l_{i-1}(u)$ | u is a neighbor of v$\}$
-        * done in \texttt{determine_labels}
+        * done in \texttt{determine\_labels}
         * as per the paper, since our graphs are unlabelled, we use the node-degrees as starting labels for the node
 
 
 2. **Sorting each multiset**
     * Sort elements in $M_i(v)$ in ascending order and concatenate them into a string $s_i(v)$
-        * sorted and merged in \texttt{get_labels} 
+        * sorted and merged in \texttt{get\_labels} 
     * Add $l_{i-1}(v)$ as a prefix to $s_i(v)$
-        * done in \texttt{extend_labels}. Returns the string formatted as requested
+        * done in \texttt{extend\_labels}. Returns the string formatted as requested
 
 
 3. **Label compression**
     * Map each string $s_i(v)$ to a compressed label using a hash function $f : \Sigma^{*} \rightarrow \Sigma$ such that $f(s_i(v)) = f(s_i (w))$ if and only if $s_i(v) = s_i(w)$
-        * done in \texttt{compress_label} and \texttt{relabel}
+        * done in \texttt{compress\_label} and \texttt{relabel}
     * As the first "hash", I use the highest degree of a node in all graphs, plus one (hence I'm sure that one is a hash instead of an original label
 
 
@@ -282,7 +282,7 @@ The \texttt{run()} method returns the similarity matrix containing the normalize
 
 
 ## Results
-The reported results are obtained from a 10-fold Cross Validation with shuffled dataset. For the manifold learning algorithms, I set the number of neighbors to 15 and the number of components to 2.
+The reported results are obtained from a 10-fold Cross Validation with shuffled dataset. The Weisfeiler-Lehman kernel is run with $h=4$.
 
 
 \begin{figure}[H]
@@ -302,63 +302,137 @@ The reported results are obtained from a 10-fold Cross Validation with shuffled 
 ### SVMs without manifold learning step
 
 #### SHOCK dataset
+
 |Value|Accuracy|
 |:---------------|:---------------|
-|Minimum|0.1|
-|Mean|0.34|
-|Max|0.6|
-|Standard deviation|0.14|
+|Minimum|0.2|
+|Mean|0.32|
+|Max|0.5|
+|Standard deviation|0.1|
 
 #### PPI dataset
-|Value|Accuracy|
-|:---------------|:---------------|
-|Minimum|0.555|
-|Mean|0.71|
-|Max|0.78|
-|Standard deviation|0.07|
 
-
-### SVMs with Isomap manifold learning
-#### SHOCK dataset
-|Value|Accuracy|
-|:---------------|:---------------|
-|Minimum|0.1|
-|Mean|0.275|
-|Max|0.4|
-|Standard deviation|0.10|
-
-#### PPI dataset
 |Value|Accuracy|
 |:---------------|:---------------|
 |Minimum|0.5|
-|Mean|0.70|
-|Max|0.88|
+|Mean|0.71|
+|Max|0.889|
+|Standard deviation|0.11|
+
+
+### SVMs with manifold learning step
+The performance with the manifold learning step heavily vary depending on two parameters: the number of neighbors and the number of components to be considered.
+
+I tested all the combinations with the number of neighbors $\in \{2, ..., 24\}$ and the number of components $\in \{2, ..., 10\}$. I will report the best and the worst result, together with the relative tuple $(\#neighbors, \#components)$.
+
+
+#### SHOCK dataset
+$\ $ \newline
+**LLE**
+
+Best results: 20 neighbors, 8 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.2|
+|Mean|0.40|
+|Max|0.8|
+|Standard deviation|0.17|
+
+
+Worst results: 2 neighbors, 2 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.05|
+|Mean|0.135|
+|Max|0.2|
+|Standard deviation|0.06|
+
+
+**Isomap**
+
+Best results: 10 neighbors, 9 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.25|
+|Mean|0.41|
+|Max|0.6|
+|Standard deviation|0.09|
+
+Worst results: 2 neighbor, 7 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.0|
+|Mean|0.14|
+|Max|0.2|
+|Standard deviation|0.06|
+
+
+
+#### PPI dataset
+$\ $ \newline
+**LLE**
+
+Best results: 6 neighbors, 8 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.555|
+|Mean|0.776|
+|Max|1.0|
+|Standard deviation|0.12|
+
+Worst results: 2 neighbors, 6 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.25|
+|Mean|0.53|
+|Max|0.666|
+|Standard deviation|0.11|
+
+
+
+**Isomap**
+
+Best results: 4 neighbors, 7 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.555|
+|Mean|0.79|
+|Max|1.0|
+|Standard deviation|0.12|
+
+Worst results: 2 neighbors, 6 components
+
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.375|
+|Mean|0.59|
+|Max|0.875|
 |Standard deviation|0.13|
 
 
 
-### SVMs with LLE manifold learning
-#### SHOCK dataset
-|Value|Accuracy|
-|:---------------|:---------------|
-|Minimum|0.1|
-|Mean|0.245|
-|Max|0.4|
-|Standard deviation|0.10|
-
-#### PPI dataset
-|Value|Accuracy|
-|:---------------|:---------------|
-|Minimum|0.5|
-|Mean|0.61|
-|Max|0.66|
-|Standard deviation|0.07|
-
 
 
 # Conclusions
+As we can see, the application of a manifold learning technique doesn't always improve the performance of the SVM classifier. The experimental results tell us that if we can find the "right" $(\#neighbors, \#components)$ pair, then the performance increase. However, in most of the executions the performance either are the same as the ones obtained without the manifold learning step, or they are even worse. The main conclusion we draw from this is that even though the manifold learning step can be helpful, we need to take into consideration the tuning of the parameters, which is another huge problem to solve on its own.
+
+Let us now focus on the two datasets separately.
+When considering the Shock dataset, in the best case applying the manifold learning step leads to a +10% increase (from ~30% to ~40%) in the classification accuracy of the SVM, while in the worst case it decreases the accuracy to a ~10% classification accuracy, which is very poor compared to the ~30% obtained by not applying a manifold learning step at all. As said before, the obtained results are all a matter of choosing the right parameters, which can not be seen as an easy task. As a matter of fact, while testing the various $(\#neighbors, \#components)$ pairs, I noticed that most of them lead to poorer results than the ones of the SVM trained without the manifold learning step. In a "real" context, it might be reasonable to check whether computing the best parameters for the task is worth it.
+
+In the PPI dataset the situation changes: here applying the manifold learning step seldom leads to worse performance than the "standard" ones, and the manifold learning step usually improves the classification accuracy. In the best case, both Isomap and LLE lead to a 100% classification accuracy: even though this result should be checked against a wider dataset, the mean classification accuracy is still improved, leading to a 6-7% increase in the accuracy of the SVM when the parameters are carefully chosen.
 
 
+For both datasets, it is easy to notice that the worst performance obtained by using the manifold learning algorithms come from the executions with the number of neighbors set to 2: in other words, as one might think, considering few neighbors gives very little information on the global structure of the graph and hence leads to poor performance. On the other hand, also considering too many neighbors does not seem like a good idea, especially in the PPI dataset. Here the best results are yielded by runs considering 4 or 6 neighbors, while the Shock dataset -that seems to be tougher to classify- requires many more neighbors. This might also be related to the fact that the PPI dataset only includes elements from 2 classes, while the Shock dataset contains 150 elements divided into 10 classes, also providing very few training examples per class. When considering the Shock dataset, LLE seems to work better than Isomap, probably because the information given by local neighborhoods is more useful than the one coming from higher distances. In PPI, on the other hand, Isomap seems to work better than PPI, probably because in this case the global structure is more relevant than the local one: this sounds reasonable if we recall that the dataset represents interactions between proteins.
+
+
+To conclude, I think it is fundamental to remark that the usage of manifold learning techniques in order to improve graph kernels can lead to an improvement in the classification accuracy, but this comes at the high cost of computing the two "best" hyper-parameter for the manifold learning algorithms. In other words, even though we have seen that manifold learning *can* improve our classifiers, we are not sure whether certain values *will* improve them - unless we first try many possible combinations. 
 
 
 # Resources
