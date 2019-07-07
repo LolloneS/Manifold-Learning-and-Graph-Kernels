@@ -34,9 +34,9 @@ Compare the performance of an SVM trained on the given kernel, with or without t
 * [PPI](http://www.dsi.unive.it/~atorsell/AI/graph/PPI.mat): this is a Protein-Protein Interaction dataset. Here proteins (nodes) are connected by an edge in the graph if they have a physical or functional association.
 * [Shock](http://www.dsi.unive.it/~atorsell/AI/graph/Shock.mat): representing 2D shapes. Each graph is a skeletal-based representation of the differential structure of the boundary of a 2D shape.
 
-**Note**: the datasets are contained in Matlab files. The variable `G` contains a vector of cells, one per graph. 
-The entry `am` of each cell is the adjacency matrix of the graph.
-The variable `labels`, contains the class-labels of each graph.	
+**Note**: the datasets are contained in Matlab files. The variable \texttt{G} contains a vector of cells, one per graph. 
+The entry \texttt{am} of each cell is the adjacency matrix of the graph.
+The variable \texttt{labels}, contains the class-labels of each graph.	
 
 
 # Background
@@ -238,16 +238,123 @@ The lack of a locality condition and the consequent summation over the entire st
 ## Improving graph kernels with manifold learning
 This assignment requires us to compare an SVM trained on a kernel with and without the manifold learning step. The goal is to try and see whether applying an optimal manifold learning process to the distance matrix leads to an increase in the class separation. 
 
-Given a set of $n$ graphs $\mathcal{G}=\{G_1,...,G_n\}$ and their kernel matrix $K=(k_{ij})$ we can compute the distance matrix $D=(d_{ij})$ with $d_{ij}=\sqrt{K_{ii}+k_{jj}-2k_{ij}}$. Then we can apply the selected manifold learning algorithm and train an SVM classifier (C-SVM) with a linear kernel. Finally we can select the optimal set of parameters using cross validation for the $\nu$-tuple of parameters which maximises
+Given a set of $n$ graphs $\mathcal{G}=\{G_1,...,G_n\}$ and their kernel matrix $K=(k_{ij})$ we can compute the distance matrix $D=(d_{ij})$ with $d_{ij}=\sqrt{k_{ii}+k_{jj}-2k_{ij}}$. Then we can apply the selected manifold learning algorithm and train an SVM classifier (C-SVM) with a linear kernel. Finally we can select the optimal set of parameters using cross validation for the $\nu$-tuple of parameters which maximises
 $$
 \argmax_{p_1,...,p_{\nu-1}} \ \max_C \alpha
 $$
 where $\alpha$ is the 10-fold cross validation accuracy of the C-SVM, $C$ is the regularizer constant, and 
 $p_1, ..., p_{\nu-1}$ are the parameters of the chosen manifold learning technique
 
-# Experiments
 
-# Results
+# Experiments
+## Code
+The code has been implemented in Python, mainly relying on the Numpy and Scikit-Learn libraries.
+
+Here is a high-level description of what it does, taken from the original paper:
+
+1. **Multiset label determination**
+    * assign a multiset label $M_i(v)$ to each node $v \in G$ which consists of the multiset $\{l_{i-1}(u)$ | u is a neighbor of v$\}$
+        * done in \texttt{determine_labels}
+        * as per the paper, since our graphs are unlabelled, we use the node-degrees as starting labels for the node
+
+
+2. **Sorting each multiset**
+    * Sort elements in $M_i(v)$ in ascending order and concatenate them into a string $s_i(v)$
+        * sorted and merged in \texttt{get_labels} 
+    * Add $l_{i-1}(v)$ as a prefix to $s_i(v)$
+        * done in \texttt{extend_labels}. Returns the string formatted as requested
+
+
+3. **Label compression**
+    * Map each string $s_i(v)$ to a compressed label using a hash function $f : \Sigma^{*} \rightarrow \Sigma$ such that $f(s_i(v)) = f(s_i (w))$ if and only if $s_i(v) = s_i(w)$
+        * done in \texttt{compress_label} and \texttt{relabel}
+    * As the first "hash", I use the highest degree of a node in all graphs, plus one (hence I'm sure that one is a hash instead of an original label
+
+
+4. **Relabeling**
+    * Set $l_i(v) = f(s_i(v))$ for all nodes in $G$ 
+        * done in \texttt{relabel}
+
+
+After having done all of the above, the similarity matrix for the N graphs is computed.
+The \texttt{run()} method returns the similarity matrix containing the normalized values for all the graphs.
+
+
+
+## Results
+The reported results are obtained from a 10-fold Cross Validation with shuffled dataset. For the manifold learning algorithms, I set the number of neighbors to 15 and the number of components to 2.
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{img/shock_dm.png}
+    \caption{Pairwise distances for the SHOCK dataset}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{img/ppi_dm.png}
+    \caption{Pairwise distances for the PPI dataset}
+  \end{minipage}
+\end{figure}
+
+
+### SVMs without manifold learning step
+
+#### SHOCK dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.1|
+|Mean|0.34|
+|Max|0.6|
+|Standard deviation|0.14|
+
+#### PPI dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.555|
+|Mean|0.71|
+|Max|0.78|
+|Standard deviation|0.07|
+
+
+### SVMs with Isomap manifold learning
+#### SHOCK dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.1|
+|Mean|0.275|
+|Max|0.4|
+|Standard deviation|0.10|
+
+#### PPI dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.5|
+|Mean|0.70|
+|Max|0.88|
+|Standard deviation|0.13|
+
+
+
+### SVMs with LLE manifold learning
+#### SHOCK dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.1|
+|Mean|0.245|
+|Max|0.4|
+|Standard deviation|0.10|
+
+#### PPI dataset
+|Value|Accuracy|
+|:---------------|:---------------|
+|Minimum|0.5|
+|Mean|0.61|
+|Max|0.66|
+|Standard deviation|0.07|
+
+
 
 # Conclusions
 
@@ -255,13 +362,12 @@ $p_1, ..., p_{\nu-1}$ are the parameters of the chosen manifold learning techniq
 
 
 # Resources
-* Professor's slides
-* http://www.dsi.unive.it/~atorsell/AI/graph/Unfolding.pdf
-* http://www.dsi.unive.it/~atorsell/AI/graph/kernels.pdf
-* https://en.wikipedia.org/wiki/Kernel_method
-* https://en.wikipedia.org/wiki/Positive-definite_kernel
-* https://www.ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/CA10_GraphKernels_intro.pdf
-* https://ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/CA10_WeisfeilerLehman.pdf
-* https://scikit-learn.org/stable/modules/manifold.html
-* https://scikit-learn.org/stable/auto_examples/manifold/plot_lle_digits.html 
-* https://en.wikipedia.org/wiki/Graph_kernel
+* [http://www.dsi.unive.it/~atorsell/AI/graph/Unfolding.pdf](http://www.dsi.unive.it/~atorsell/AI/graph/Unfolding.pdf)
+* [http://www.dsi.unive.it/~atorsell/AI/graph/kernels.pdf](http://www.dsi.unive.it/~atorsell/AI/graph/kernels.pdf)
+* [https://en.wikipedia.org/wiki/Kernel_method](https://en.wikipedia.org/wiki/Kernel_method)
+* [https://en.wikipedia.org/wiki/Positive-definite_kernel](https://en.wikipedia.org/wiki/Positive-definite_kernel)
+* [https://www.ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/](https://www.ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/CA10_GraphKernels_intro.pdf)
+* [https://ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/CA10_WeisfeilerLehman.pdf](https://ethz.ch/content/dam/ethz/special-interest/bsse/borgwardt-lab/documents/slides/CA10_WeisfeilerLehman.pdf)
+* [https://scikit-learn.org/stable/modules/manifold.html](https://scikit-learn.org/stable/modules/manifold.html)
+* [https://scikit-learn.org/stable/auto_examples/manifold/plot_lle_digits.html](https://scikit-learn.org/stable/auto_examples/manifold/plot_lle_digits.html) 
+* [https://en.wikipedia.org/wiki/Graph_kernel](https://en.wikipedia.org/wiki/Graph_kernel)
